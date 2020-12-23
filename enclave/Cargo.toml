@@ -39,3 +39,6 @@ sgx_types = { path = "../../../sgx_types" }
 sgx_ucrypto = { path = "../../../sgx_ucrypto" }
 sgx_unwind = { path = "../../../sgx_unwind" }
 sgx_urts = { path = "../../../sgx_urts" }
+
+[dependencies]
+io-uring = { path = "../io-uring", default-features = false, features = [ "sgx-feature" ] }

@@ -25,15 +25,18 @@ extern crate sgx_types;
 #[cfg(not(target_env = "sgx"))]
 #[macro_use]
 extern crate sgx_tstd as std;
+extern crate io_uring;
 
 use sgx_types::*;
-
+use io_uring::IoUring;
 
 #[no_mangle]
 pub extern "C" fn run_io_uring_example() -> sgx_status_t {
     println!("[ECALL] run_io_uring_example");
 
     // example
+    let mut _ring = IoUring::new(256).unwrap().concurrent();
+    println!("[ECALL] init io_uring success");
 
     sgx_status_t::SGX_SUCCESS
 }
