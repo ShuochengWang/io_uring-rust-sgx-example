@@ -3,8 +3,10 @@ based on rust-sgx-sdk
 
 
 ## io_uring rust-sgx-sdk sample
-Modified from [https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust](https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust)
+Modified from [https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust](https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust).
+
 Responsible for invoking io_uring-example in SGX.
+
 Contains following directories:
 
 - ./app
@@ -15,9 +17,12 @@ Contains following directories:
 
 
 ## io-uring crate
-Modified from [https://github.com/tokio-rs/io-uring](https://github.com/tokio-rs/io-uring) at commit _c812adbd917ad33132a760698f5d276b1365fbc6_
+Modified from [https://github.com/tokio-rs/io-uring](https://github.com/tokio-rs/io-uring) at commit _c812adbd917ad33132a760698f5d276b1365fbc6_ .
+
 Support SGX and Linux.
-when use in SGX, need specify: `default-features = false, features = [ "sgx-feature" ]`
+
+when use in SGX, need specify: `default-features = false, features = [ "sgx-feature" ]`. And io-uring ocall is implemented in ./app/src/io_uring_ocall.
+
 Contains following directories:
 
 - ./io-uring
