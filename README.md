@@ -16,3 +16,8 @@ Contains following directories:
 
 ## io-uring crate
 Modified from [https://github.com/tokio-rs/io-uring](https://github.com/tokio-rs/io-uring) at commit _c812adbd917ad33132a760698f5d276b1365fbc6_
+Support SGX and Linux.
+when use in SGX, need specify: `default-features = false, features = [ "sgx-feature" ]`
+Contains following directories:
+
+- ./io-uring
