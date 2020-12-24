@@ -26,9 +26,11 @@ extern crate sgx_types;
 #[macro_use]
 extern crate sgx_tstd as std;
 extern crate io_uring;
+extern crate untrusted_allocator;
 
 use sgx_types::*;
 use io_uring::IoUring;
+use untrusted_allocator::{ init_heap_allocator, UntrustedAllocator };
 
 #[no_mangle]
 pub extern "C" fn run_io_uring_example() -> sgx_status_t {
@@ -37,6 +39,10 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
     // example
     let mut _ring = IoUring::new(256).unwrap().concurrent();
     println!("[ECALL] init io_uring success");
+
+    init_heap_allocator(128 * 1024 * 1024);
+    let alloc = UntrustedAllocator::new(4096, 8).unwrap();
+    alloc.new_slice(&[0, 1, 2]).unwrap();
 
     sgx_status_t::SGX_SUCCESS
 }

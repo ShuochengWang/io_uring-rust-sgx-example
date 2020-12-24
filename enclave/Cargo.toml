@@ -42,3 +42,4 @@ sgx_urts = { path = "../../../sgx_urts" }
 
 [dependencies]
 io-uring = { path = "../io-uring", default-features = false, features = [ "sgx-feature" ] }
+untrusted_allocator = { path = "../untrusted_allocator" }
