@@ -5,6 +5,7 @@ Enclave_t.c
 Enclave_t.h
 app/target
 enclave/target
+untrusted_allocator/target
 bin/app
 *.o
 *.a
