@@ -26,3 +26,10 @@ when use in SGX, need specify: `default-features = false, features = [ "sgx-feat
 Contains following directories:
 
 - ./io-uring
+
+## untrusted_allocator crate
+Support untrusted memory managemnet in SGX
+
+Contains following directories:
+
+- ./untrusted_allocator
