@@ -1,6 +1,7 @@
 #![doc(html_root_url = "https://docs.rs/slab/0.4.2")]
 #![deny(warnings, missing_docs, missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings, unreachable_pub))]
+#![cfg_attr(feature = "sgx-feature", no_std)]
 
 //! Pre-allocated storage for a uniform data type.
 //!
@@ -101,6 +102,13 @@
 //! called and a new slot is created.
 //!
 //! [`Slab::with_capacity`]: struct.Slab.html#with_capacity
+
+#[cfg(feature = "sgx-feature")]
+#[macro_use]
+extern crate sgx_tstd as std;
+
+#[cfg(feature = "sgx-feature")]
+use std::prelude::v1::*;
 
 use std::iter::{FromIterator, IntoIterator};
 use std::ops;
