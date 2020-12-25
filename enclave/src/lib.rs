@@ -111,6 +111,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
     let mut bufpool = Vec::with_capacity(64);
     let mut buf_alloc = Slab::with_capacity(64);
     let mut token_alloc = Slab::with_capacity(64);
+    let u_alloc = UntrustedAllocator::new(2048 * 64, 8).unwrap();
 
     let (submitter, sq, cq) = ring.split();
 
@@ -194,7 +195,8 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     let (buf_index, buf) = match bufpool.pop() {
                         Some(buf_index) => (buf_index, &mut buf_alloc[buf_index]),
                         None => {
-                            let buf = vec![0u8; 2048].into_boxed_slice();
+                            let buf = Box::new(u_alloc.new_slice_mut(2048).unwrap());
+                            // let buf = vec![0u8; 2048].into_boxed_slice();
                             let buf_entry = buf_alloc.vacant_entry();
                             let buf_index = buf_entry.key();
                             (buf_index, buf_entry.insert(buf))
