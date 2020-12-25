@@ -14,6 +14,11 @@ Contains following directories:
 - ./enclave
 - ./lib
 
+## client crate
+client app for tcp_echo example.
+
+Contains following directories:
+- ./client
 
 
 ## io-uring crate
