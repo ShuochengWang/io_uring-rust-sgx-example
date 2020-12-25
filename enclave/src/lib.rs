@@ -77,7 +77,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
     ret = unsafe {
         let servaddr = libc::sockaddr_in {
             sin_family: libc::AF_INET as u16,
-            sin_port: 3456,
+            sin_port: htons(3456),
             // s_addr should be htonl(INADDR_ANY)
             sin_addr: libc::in_addr { s_addr: 0 },
             sin_zero: [0; 8],
@@ -335,4 +335,8 @@ impl AcceptCount {
             }
         }
     }
+}
+
+pub fn htons(u: u16) -> u16 {
+    u.to_be()
 }
