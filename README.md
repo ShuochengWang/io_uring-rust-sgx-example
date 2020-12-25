@@ -1,6 +1,9 @@
 # io_uring-rust-sgx-example
 based on rust-sgx-sdk
 
+## quick start
+- ./sgx_run.sh : run tcp_echo in SGX and run client in host.
+- ./host_run.sh : run tcp_echo and client in host.
 
 ## io_uring rust-sgx-sdk sample
 Modified from [https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust](https://github.com/apache/incubator-teaclave-sgx-sdk/tree/master/samplecode/hello-rust).
