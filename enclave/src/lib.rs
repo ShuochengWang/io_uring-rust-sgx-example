@@ -52,7 +52,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
 
     let socket_fd = unsafe { libc::ocall::socket(libc::AF_INET, libc::SOCK_STREAM, 0) };
     if socket_fd < 0 {
-        println!("create socket failed, ret: {}", socket_fd);
+        println!("[ECALL] create socket failed, ret: {}", socket_fd);
         return sgx_status_t::SGX_ERROR_UNEXPECTED;
     }
 
@@ -67,7 +67,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
         )
     };
     if ret < 0 {
-        println!("setsockopt failed, ret: {}", ret);
+        println!("[ECALL] setsockopt failed, ret: {}", ret);
         unsafe {
             libc::ocall::close(socket_fd);
         }
@@ -89,7 +89,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
         )
     };
     if ret < 0 {
-        println!("bind failed, ret: {}", ret);
+        println!("[ECALL] bind failed, ret: {}", ret);
         unsafe {
             libc::ocall::close(socket_fd);
         }
@@ -98,14 +98,14 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
 
     ret = unsafe { libc::ocall::listen(socket_fd, 10) };
     if ret < 0 {
-        println!("listen failed, ret: {}", ret);
+        println!("[ECALL] listen failed, ret: {}", ret);
         unsafe {
             libc::ocall::close(socket_fd);
         }
         return sgx_status_t::SGX_ERROR_UNEXPECTED;
     }
 
-    println!("listen 127.0.0.1:3456");
+    println!("[ECALL] listen 127.0.0.1:3456");
 
     let mut backlog = Vec::new();
     let mut bufpool = Vec::with_capacity(64);
@@ -124,7 +124,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
             Ok(_) => (),
             Err(ref err) if err.raw_os_error() == Some(libc::EBUSY) => (),
             Err(_) => {
-                println!("submitter.submit_and_wait(1) failed");
+                println!("[ECALL] submitter.submit_and_wait(1) failed");
                 return sgx_status_t::SGX_ERROR_UNEXPECTED;
             }
         }
@@ -139,7 +139,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     Ok(_) => (),
                     Err(ref err) if err.raw_os_error() == Some(libc::EBUSY) => break,
                     Err(_) => {
-                        println!("submitter.submit() failed");
+                        println!("[ECALL] submitter.submit() failed");
                         return sgx_status_t::SGX_ERROR_UNEXPECTED;
                     }
                 }
@@ -164,7 +164,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
 
             if ret < 0 {
                 eprintln!(
-                    "token {:?} error: {:?}",
+                    "[ECALL] token {:?} error: {:?}",
                     token_alloc.get(token_index),
                     io::Error::from_raw_os_error(-ret)
                 );
@@ -174,7 +174,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
             let token = &mut token_alloc[token_index];
             match token.clone() {
                 Token::Accept => {
-                    println!("accept");
+                    println!("[ECALL] accept");
 
                     accept.count += 1;
 
@@ -216,11 +216,12 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     }
                 }
                 Token::Read { fd, buf_index } => {
+                    println!("[ECALL] read complete, ret: {}", ret);
                     if ret == 0 {
                         bufpool.push(buf_index);
                         token_alloc.remove(token_index);
 
-                        println!("shutdown");
+                        println!("[ECALL] shutdown");
 
                         unsafe {
                             libc::ocall::close(fd);
@@ -253,6 +254,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     offset,
                     len,
                 } => {
+                    println!("[ECALL] write complete, ret: {}", ret);
                     let write_len = ret as usize;
 
                     let entry = if offset + write_len >= len {

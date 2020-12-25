@@ -25,7 +25,7 @@ pub fn init_heap_allocator(size: usize) {
             .init(buf_ptr as *const u8 as usize, buf_size);
     }
     println!(
-        "init_heap_allocator, want size: {}, real size: {}",
+        "[untrusted_allocator] init_heap_allocator, want size: {}, real size: {}",
         size, buf_size
     );
 }
@@ -98,6 +98,7 @@ impl UntrustedAllocator {
         Ok(new_slice)
     }
 
+    // need fix bug!
     pub fn new_align_slice_mut(&self, new_slice_len: usize, align: usize) -> Result<&mut [u8], ()> {
         let new_slice_ptr = {
             let mut pos = self
