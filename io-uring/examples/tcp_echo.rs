@@ -68,7 +68,7 @@ fn main() -> anyhow::Result<()> {
 
     accept.push(&mut sq.available());
 
-    submitter.start_enter_syscall_thread();
+    // submitter.start_enter_syscall_thread();
 
     loop {
         match submitter.submit_and_wait(1) {
