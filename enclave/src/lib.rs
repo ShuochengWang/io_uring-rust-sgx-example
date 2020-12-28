@@ -205,11 +205,11 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                         }
                     };
 
-                    let read_token = token_alloc.insert(Token::Read { fd, buf_index });
+                    *token = Token::Read { fd, buf_index };
 
                     let read_e = opcode::Read::new(types::Fd(fd), buf.as_mut_ptr(), buf.len() as _)
                         .build()
-                        .user_data(read_token as _);
+                        .user_data(token_index as _);
 
                     unsafe {
                         if let Err(entry) = sq.push(read_e) {
