@@ -119,6 +119,8 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
 
     accept.push(&mut sq.available());
 
+    submitter.start_enter_syscall_thread();
+
     loop {
         match submitter.submit_and_wait(1) {
             Ok(_) => (),
@@ -216,7 +218,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     }
                 }
                 Token::Read { fd, buf_index } => {
-                    println!("[ECALL] read complete, ret: {}", ret);
+                    // println!("[ECALL] read complete, ret: {}", ret);
                     if ret == 0 {
                         bufpool.push(buf_index);
                         token_alloc.remove(token_index);
@@ -254,7 +256,7 @@ pub extern "C" fn run_io_uring_example() -> sgx_status_t {
                     offset,
                     len,
                 } => {
-                    println!("[ECALL] write complete, ret: {}", ret);
+                    // println!("[ECALL] write complete, ret: {}", ret);
                     let write_len = ret as usize;
 
                     let entry = if offset + write_len >= len {

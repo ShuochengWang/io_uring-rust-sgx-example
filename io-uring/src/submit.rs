@@ -55,6 +55,7 @@ impl<'a> Submitter<'a> {
     /// # Safety
     ///
     /// This provides a raw interface so developer must ensure that parameters are correct.
+    #[cfg(not(feature = "sgx-feature"))]
     pub unsafe fn enter(
         &self,
         to_submit: u32,
@@ -62,6 +63,30 @@ impl<'a> Submitter<'a> {
         flag: u32,
         sig: Option<&libc::sigset_t>,
     ) -> io::Result<usize> {
+        if flag & sys::IORING_ENTER_SQ_WAKEUP == 0 {
+            return Ok(0);
+        }
+        println!("enter! to_submit: {}, min_complete: {}, flag: {}", to_submit, min_complete, flag);
+        let sig = sig.map(|sig| sig as *const _).unwrap_or_else(ptr::null);
+        let result = sys::io_uring_enter(self.fd.as_raw_fd(), to_submit, min_complete, flag, sig);
+        if result >= 0 {
+            Ok(result as _)
+        } else {
+            Err(io::Error::last_os_error())
+        }
+    }
+    #[cfg(feature = "sgx-feature")]
+    pub unsafe fn enter(
+        &self,
+        to_submit: u32,
+        min_complete: u32,
+        flag: u32,
+        sig: Option<&libc::sigset_t>,
+    ) -> io::Result<usize> {
+        if flag & sys::IORING_ENTER_SQ_WAKEUP == 0 {
+            return Ok(0);
+        }
+        println!("enter! to_submit: {}, min_complete: {}, flag: {}", to_submit, min_complete, flag);
         let sig = sig.map(|sig| sig as *const _).unwrap_or_else(ptr::null);
         let result = sys::io_uring_enter(self.fd.as_raw_fd(), to_submit, min_complete, flag, sig);
         if result >= 0 {
@@ -97,6 +122,10 @@ impl<'a> Submitter<'a> {
         }
 
         unsafe { self.enter(len as _, want as _, flags, None) }
+    }
+
+    pub fn start_enter_syscall_thread(&self) {
+        sys::start_enter_syscall_thread(self.fd.as_raw_fd());
     }
 
     /// Register buffers.

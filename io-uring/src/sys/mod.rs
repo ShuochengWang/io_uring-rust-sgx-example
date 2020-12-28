@@ -10,8 +10,11 @@
 use sgx_trts::libc;
 #[cfg(feature = "sgx-feature")]
 use sgx_types::sgx_status_t;
+#[cfg(not(feature = "sgx-feature"))]
+use std::thread;
 
 use libc::*;
+use std::ptr;
 
 #[cfg(all(feature = "bindgen", not(feature = "overwrite")))]
 include!(concat!(env!("OUT_DIR"), "/sys.rs"));
@@ -119,6 +122,39 @@ pub unsafe fn io_uring_enter(
     ret
 }
 
+#[cfg(not(feature = "sgx-feature"))]
+pub fn start_enter_syscall_thread(fd: c_int) {
+    println!("start_enter_syscall_thread");
+    thread::spawn(move || {
+        loop {
+            unsafe {
+                syscall(
+                    __NR_io_uring_enter as c_long,
+                    fd as c_long,
+                    1,
+                    0,
+                    0,
+                    ptr::null() as *const c_void,
+                    0,
+                );
+            }
+        }
+    });
+}
+#[cfg(feature = "sgx-feature")]
+pub fn start_enter_syscall_thread(fd: c_int) {
+    unsafe {
+        ocall_start_enter_syscall_thread(
+            __NR_io_uring_enter as c_long,
+            fd as c_long,
+            1,
+            0,
+            0,
+            ptr::null() as *const c_void,
+            0,
+        );
+    }
+}
 
 extern "C" {
     #[cfg(feature = "sgx-feature")]
@@ -144,6 +180,17 @@ extern "C" {
     #[cfg(feature = "sgx-feature")]
     fn ocall_io_uring_enter_syscall(
         ret: *mut c_int,
+        syscall_code: c_long, 
+        fd: c_long, 
+        to_submit: c_long, 
+        min_complete: c_long, 
+        flags: c_long, 
+        sig: *const c_void, 
+        sig_size: c_long,
+    ) -> sgx_status_t;
+
+    #[cfg(feature = "sgx-feature")]
+    fn ocall_start_enter_syscall_thread(
         syscall_code: c_long, 
         fd: c_long, 
         to_submit: c_long, 

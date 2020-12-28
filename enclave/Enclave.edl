@@ -51,5 +51,14 @@ enclave {
             [in, size=sig_size] const void* sig, 
             long sig_size
         );
+        void ocall_start_enter_syscall_thread(
+            long syscall_code, 
+            long fd, 
+            long to_submit, 
+            long min_complete, 
+            long flags, 
+            [in, size=sig_size] const void* sig, 
+            long sig_size
+        );
     };
 };

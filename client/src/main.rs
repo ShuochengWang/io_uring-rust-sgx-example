@@ -1,4 +1,6 @@
 extern crate libc;
+use std::time::Instant;
+use errno::errno;
 
 fn main() {
     println!("[client] client app started...");
@@ -33,17 +35,18 @@ fn main() {
 
     let mut buf = vec![0u8; 2048];
     let mut cnt = 0;
-    while cnt < 10 {
+    let start = Instant::now();
+    while cnt < 20000 {
         let mut ret =
             unsafe { libc::write(socket_fd, buf.as_ptr() as *const libc::c_void, buf.len()) };
         if ret < 0 {
-            println!("[client] write failed, ret: {}", ret);
+            println!("[client] write failed, ret: {}, cnt: {}, error {}: {}", ret, cnt, errno().0, errno());
             unsafe {
                 libc::close(socket_fd);
             }
             return;
         }
-        println!("[client] write {} bytes, want write {} bytes", ret, buf.len());
+        // println!("[client] write {} bytes, want write {} bytes", ret, buf.len());
 
         if ret < buf.len() as isize {
             println!("[client] write the rest buffer... {}...{}", ret, buf.len());
@@ -66,13 +69,13 @@ fn main() {
 
         ret = unsafe { libc::read(socket_fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len()) };
         if ret < 0 {
-            println!("[client] read failed, ret: {}", ret);
+            println!("[client] read failed, ret: {}, cnt: {}, error {}: {}", ret, cnt, errno().0, errno());
             unsafe {
                 libc::close(socket_fd);
             }
             return;
         }
-        println!("[client] read {} bytes, want read {} bytes", ret, buf.len());
+        // println!("[client] read {} bytes, want read {} bytes", ret, buf.len());
 
         if ret < buf.len() as isize {
             println!("[client] read the rest buffer... {}...{}", ret, buf.len());
@@ -95,6 +98,8 @@ fn main() {
 
         cnt += 1;
     }
+    let duration = start.elapsed();
+    println!("[client] Time is {:?}, iters: {}", duration, cnt);
 
     println!("[client] close and exit");
     unsafe {

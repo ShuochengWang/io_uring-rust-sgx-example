@@ -1,5 +1,6 @@
 use sgx_types::{c_long, c_int, c_void};
 use libc::syscall;
+use std::thread;
 
 #[no_mangle]
 pub extern "C" fn ocall_io_uring_register_syscall(
@@ -58,4 +59,33 @@ pub extern "C" fn ocall_io_uring_enter_syscall(
             sig_size,
         ) as _
     }
+}
+
+#[no_mangle]
+pub extern "C" fn ocall_start_enter_syscall_thread(
+    syscall_code: c_long, 
+    fd: c_long, 
+    to_submit: c_long, 
+    min_complete: c_long, 
+    flags: c_long, 
+    sig: *const c_void, 
+    sig_size: c_long,
+) {
+    println!("ocall_start_enter_syscall_thread");
+    let sig_addr = sig as c_long;
+    thread::spawn(move || {
+        loop {
+            unsafe {
+                syscall(
+                    syscall_code, 
+                    fd, 
+                    to_submit, 
+                    min_complete, 
+                    flags, 
+                    sig_addr, 
+                    sig_size,
+                );
+            }
+        }
+    });
 }
